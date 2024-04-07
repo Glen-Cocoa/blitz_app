@@ -13,7 +13,7 @@ defmodule Blitz.API do
     "ru" => "asia",
     "tr1" => "europe",
     "tw2" => "asia",
-    "vn2" => "asia",
+    "vn2" => "asia"
   }
 
   def run(name, region) do

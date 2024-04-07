@@ -30,5 +30,4 @@ defmodule Blitz.RequestManager do
     updated_request_worker_servers = Map.delete(request_worker_servers, key_to_delete)
     {:noreply, updated_request_worker_servers}
   end
-
 end

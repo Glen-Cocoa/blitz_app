@@ -12,7 +12,7 @@ defmodule Blitz.Application do
       {Blitz.RequestSupervisor, []}
     ]
 
-    opts = [strategy: :one_for_one, name: Blitz.RequestSupervisor]
+    opts = [strategy: :one_for_one]
 
     Logger.info("Starting Application")
 

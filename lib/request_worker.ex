@@ -6,15 +6,22 @@ defmodule Blitz.RequestWorker do
   alias Blitz.API
   alias Blitz.RequestData
 
+  @interval 60_000
+  @cycle_limit 60
+
+  defstruct cycles: 0, data: %Blitz.RequestData{}, name: nil, region: nil, error: nil
+
+  @spec start(String.t()) :: {:error, term()} | {:ok, pid()}
   def start(name_region_key) do
     GenServer.start(__MODULE__, name_region_key)
   end
 
-  @interval 10_000
-  @cycle_limit 10
+  @spec get_participants(pid()) :: [String.t()]
+  def get_participants(pid) do
+    GenServer.call(pid, :get_participants)
+  end
 
-  defstruct cycles: 0, data: %Blitz.RequestData{}, name: nil, region: nil, error: nil
-
+  @spec init(String.t()) :: {:ok, %__MODULE__{}}
   def init(name_region_key) do
     [region, name] = String.split(name_region_key, ":")
 
@@ -40,14 +47,14 @@ defmodule Blitz.RequestWorker do
     end
   end
 
-  def get_participants(pid) do
-    GenServer.call(pid, :get_participants)
-  end
-
+  @spec handle_call(:get_participants, _from :: pid(), %__MODULE__{}) ::
+          {:reply, [String.t()], %__MODULE__{}}
   def handle_call(:get_participants, _from, state) do
     {:reply, state.data.participants, state}
   end
 
+  @spec handle_info(:tick, %__MODULE__{}) ::
+          {:stop, :normal, %__MODULE__{}} | {:noreply, %__MODULE__{}}
   def handle_info(:tick, %{error: error} = state) when not is_nil(error) do
     {:stop, :normal, state}
   end
@@ -71,6 +78,7 @@ defmodule Blitz.RequestWorker do
       else: {:noreply, new_state}
   end
 
+  @spec terminate(atom(), %__MODULE__{}) :: :normal
   def terminate(_reason, %{error: error}) when not is_nil(error) do
     send(Blitz.RequestManager, {:complete, self()})
     Logger.debug("terminated with error: #{inspect(error)}")
