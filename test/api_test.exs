@@ -5,7 +5,7 @@ defmodule Blitz.APITest do
     setup do
       %{
         region: "na1",
-        name: "nemomen"
+        name: "glencocoa"
       }
     end
 
